@@ -55,7 +55,7 @@
             formData.append('image', blob, 'captured_image.jpg');
 
             try {
-                const response = await fetch('https://food-label-analyzer.herokuapp.com/analyze', {
+                const response = await fetch('https://foodlabelanalyzer-2ebcb2dc1ed7.herokuapp.com/analyze', {  // Updated URL
                     method: 'POST',
                     body: formData,
                 });
