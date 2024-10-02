@@ -5,33 +5,84 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Food Label Analyzer</title>
     <style>
-        #video {
-            width: 100%;
-            max-width: 600px;
-            border: 1px solid black;
+        /* General styling for mobile-friendly layout */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
         }
-        #canvas {
-            display: none; /* Hide the canvas */
-        }
-        #capturedImage {
-            display: none; /* Hide the captured image initially */
-            max-width: 100%;
-            margin-top: 10px;
-        }
-        .result {
-            margin-top: 20px;
+
+        h1 {
             text-align: center;
+            font-size: 1.8em;
+            color: #333;
+        }
+
+        #video, #canvas, #capturedImage {
+            width: 100%;
+            max-width: 400px;
+            display: block;
+            margin: 0 auto 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        button {
+            display: block;
+            width: 80%;
+            max-width: 300px;
+            margin: 10px auto;
+            padding: 15px;
+            font-size: 1.2em;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+        }
+
+        .result {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 1.1em;
+            padding: 10px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5em;
+            }
+            
+            button {
+                width: 90%;
+                font-size: 1em;
+            }
         }
     </style>
 </head>
 <body>
     <h1>Food Label Analyzer</h1>
     <video id="video" autoplay></video>
-    <button id="captureButton">Capture Image</button>
+    <button id="captureButton" aria-label="Capture Image">Capture Image</button>
     <canvas id="canvas"></canvas>
-    <img id="capturedImage" alt="Captured Image">
-    <button id="uploadButton" style="display:none;">Upload</button>
-    <div id="result" class="result"></div>
+    <img id="capturedImage" alt="Captured Image" aria-hidden="true">
+    <button id="uploadButton" style="display:none;" aria-label="Upload Captured Image">Upload</button>
+    <div id="result" class="result" role="alert" aria-live="polite"></div>
 
     <script>
         const video = document.getElementById('video');
@@ -41,8 +92,8 @@
         const resultDiv = document.getElementById('result');
         const capturedImage = document.getElementById('capturedImage');
 
-        // Access the camera
-        navigator.mediaDevices.getUserMedia({ video: true })
+        // Access the camera and set default to back camera for mobile devices
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
             .then(stream => {
                 video.srcObject = stream;
             })
