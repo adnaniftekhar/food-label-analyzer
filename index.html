@@ -13,15 +13,6 @@
         #canvas {
             display: none; /* Hide the canvas */
         }
-        #capturedImage {
-            display: none; /* Hide the captured image initially */
-            max-width: 100%;
-            margin-top: 10px;
-        }
-        .result {
-            margin-top: 20px;
-            text-align: center;
-        }
     </style>
 </head>
 <body>
@@ -29,9 +20,8 @@
     <video id="video" autoplay></video>
     <button id="captureButton">Capture Image</button>
     <canvas id="canvas"></canvas>
-    <img id="capturedImage" alt="Captured Image">
     <button id="uploadButton" style="display:none;">Upload</button>
-    <div id="result" class="result"></div>
+    <div id="result"></div>
 
     <script>
         const video = document.getElementById('video');
@@ -39,7 +29,6 @@
         const context = canvas.getContext('2d');
         const uploadButton = document.getElementById('uploadButton');
         const resultDiv = document.getElementById('result');
-        const capturedImage = document.getElementById('capturedImage');
 
         // Access the camera
         navigator.mediaDevices.getUserMedia({ video: true })
@@ -65,11 +54,15 @@
             const tracks = stream.getTracks();
             tracks.forEach(track => track.stop());
             video.srcObject = null; // Clear the video source
+
+            // Hide the video element
+            video.style.display = 'none'; // Hide the video element
         });
 
         // Upload the captured image
         uploadButton.addEventListener('click', async () => {
-            const blob = await (await fetch(capturedImage.src)).blob(); // Convert to Blob
+            const imageData = canvas.toDataURL('image/jpeg');
+            const blob = await (await fetch(imageData)).blob(); // Convert to Blob
             const formData = new FormData();
             formData.append('image', blob, 'captured_image.jpg');
 
@@ -84,13 +77,7 @@
                 }
 
                 const data = await response.json();
-                // Display detected text and nutrition score
-                resultDiv.innerHTML = `
-                    <h2>Detected Text:</h2>
-                    <p>${data.detected_text}</p>
-                    <h2>Nutritional Score:</h2>
-                    <p>${data.nutrition_score}</p>
-                `;
+                resultDiv.innerText = JSON.stringify(data, null, 2);
             } catch (error) {
                 console.error('Error:', error);
                 resultDiv.innerText = 'Error: ' + error.message;
