@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Food Label Analyzer</title>
     <style>
-        /* General styling for mobile-friendly layout */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -48,6 +47,10 @@
             background-color: #0056b3;
         }
 
+        button:disabled {
+            background-color: #cccccc;
+        }
+
         .result {
             text-align: center;
             margin-top: 30px;
@@ -58,14 +61,25 @@
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5em;
+            }
+            
+            button {
+                width: 90%;
+                font-size: 1em;
+            }
+        }
     </style>
 </head>
 <body>
     <h1>Food Label Analyzer</h1>
     <video id="video" autoplay></video>
     <button id="captureButton" aria-label="Capture Image">Capture Image</button>
-    <canvas id="canvas" style="display:none;"></canvas>
-    <img id="capturedImage" alt="Captured Image" aria-hidden="true" style="display:none;">
+    <canvas id="canvas"></canvas>
+    <img id="capturedImage" alt="Captured Image" aria-hidden="true">
     <button id="uploadButton" style="display:none;" aria-label="Upload Captured Image">Upload</button>
     <div id="result" class="result" role="alert" aria-live="polite"></div>
 
@@ -78,15 +92,27 @@
         const capturedImage = document.getElementById('capturedImage');
         const captureButton = document.getElementById('captureButton');
 
-        // Access the camera and set default to back camera for mobile devices
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
-            .then(stream => {
+        // Improved Camera Access for Mobile Devices
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                });
                 video.srcObject = stream;
-            })
-            .catch(err => {
+            } catch (err) {
                 console.error("Error accessing the camera: ", err);
                 alert("Could not access the camera. Please check your permissions.");
-            });
+            }
+        }
+
+        // Start the camera on load
+        document.addEventListener('DOMContentLoaded', () => {
+            startCamera();
+        });
 
         // Capture the image
         captureButton.addEventListener('click', () => {
@@ -111,7 +137,7 @@
 
                 // Change the button to "Reset"
                 captureButton.innerHTML = "Reset";
-            } else {
+            } else if (captureButton.innerHTML === "Reset") {
                 // Refresh the page when "Reset" is clicked
                 window.location.reload();
             }
@@ -130,7 +156,7 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Network response was not ok: ' + response.statusText);
+                    throw new Error('Network response was not ok');
                 }
 
                 const data = await response.json();
@@ -146,6 +172,9 @@
                 resultDiv.innerText = 'Error: ' + error.message;
             }
         });
+
+        // Add touch event for mobile devices to ensure the button works
+        captureButton.addEventListener('touchstart', () => captureButton.click());
     </script>
 </body>
 </html>
