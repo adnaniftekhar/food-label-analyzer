@@ -48,10 +48,6 @@
             background-color: #0056b3;
         }
 
-        button:disabled {
-            background-color: #cccccc;
-        }
-
         .result {
             text-align: center;
             margin-top: 30px;
@@ -62,25 +58,14 @@
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 1.5em;
-            }
-            
-            button {
-                width: 90%;
-                font-size: 1em;
-            }
-        }
     </style>
 </head>
 <body>
     <h1>Food Label Analyzer</h1>
     <video id="video" autoplay></video>
     <button id="captureButton" aria-label="Capture Image">Capture Image</button>
-    <canvas id="canvas"></canvas>
-    <img id="capturedImage" alt="Captured Image" aria-hidden="true">
+    <canvas id="canvas" style="display:none;"></canvas>
+    <img id="capturedImage" alt="Captured Image" aria-hidden="true" style="display:none;">
     <button id="uploadButton" style="display:none;" aria-label="Upload Captured Image">Upload</button>
     <div id="result" class="result" role="alert" aria-live="polite"></div>
 
@@ -126,7 +111,7 @@
 
                 // Change the button to "Reset"
                 captureButton.innerHTML = "Reset";
-            } else if (captureButton.innerHTML === "Reset") {
+            } else {
                 // Refresh the page when "Reset" is clicked
                 window.location.reload();
             }
@@ -145,7 +130,7 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error('Network response was not ok: ' + response.statusText);
                 }
 
                 const data = await response.json();
