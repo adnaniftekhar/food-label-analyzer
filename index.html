@@ -2,10 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <title>Food Label Analyzer v0.21</title>
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Food Label Analyzer">
+    <title>Food Label Analyzer</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -22,12 +24,13 @@
 
         #video, #canvas, #capturedImage {
             width: 100%;
-            max-width: 400px;
+            max-width: 300px; /* Set a fixed size for the camera window */
+            height: 225px; /* Maintain a 4:3 aspect ratio */
             display: block;
             margin: 0 auto 20px;
             border: 1px solid #ccc;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         button {
@@ -61,14 +64,14 @@
             background-color: white;
             border: 1px solid #ccc;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         @media (max-width: 768px) {
             h1 {
                 font-size: 1.5em;
             }
-            
+
             button {
                 width: 90%;
                 font-size: 1em;
@@ -77,11 +80,11 @@
     </style>
 </head>
 <body>
-    <h1>Food Label Analyzer v0.21</h1>
-    <video id="video" autoplay></video>
+    <h1>Food Label Analyzer v0.22</h1>
+    <video id="video" autoplay playsinline></video> <!-- Added `playsinline` to ensure iOS plays inline -->
     <button id="captureButton" aria-label="Capture Image">Capture Image</button>
-    <canvas id="canvas"></canvas>
-    <img id="capturedImage" alt="Captured Image" aria-hidden="true">
+    <canvas id="canvas" style="display:none;"></canvas> <!-- Hide canvas initially -->
+    <img id="capturedImage" alt="Captured Image" style="display:none;" aria-hidden="true">
     <button id="uploadButton" style="display:none;" aria-label="Upload Captured Image">Upload</button>
     <div id="result" class="result" role="alert" aria-live="polite"></div>
 
@@ -100,16 +103,15 @@
                 video: {
                     width: { ideal: 1280 },
                     height: { ideal: 720 },
-                    facingMode: 'environment' // Removed `ideal` to make it more robust
+                    facingMode: { exact: 'environment' } // Change `ideal` to `exact` for iOS
                 }
             };
 
             try {
-                // Prompt the user to access the camera
                 const stream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = stream;
 
-                // Fix for iOS: Reload page if stream ends (e.g., user denies permission)
+                // Fix for iOS: Reload page if stream ends
                 stream.getTracks().forEach(track => {
                     track.addEventListener('ended', () => {
                         console.log("Stream ended. Re-initializing camera...");
@@ -117,7 +119,6 @@
                     });
                 });
 
-                // Log success message
                 console.log("Camera stream started successfully.");
             } catch (error) {
                 console.error("Error accessing the camera: ", error);
@@ -125,7 +126,7 @@
             }
         }
 
-        // Start the camera when the page loads
+        // Request camera permissions when the page loads
         document.addEventListener('DOMContentLoaded', () => {
             startCamera();
         });
@@ -136,7 +137,7 @@
                 // Capture the image and show the captured image and upload button
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
-                context.drawImage(video, 0, 0);
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
                 const imageData = canvas.toDataURL('image/jpeg');
                 capturedImage.src = imageData; // Set the captured image source
                 capturedImage.style.display = 'block'; // Show the captured image
@@ -176,7 +177,6 @@
                 }
 
                 const data = await response.json();
-                // Display detected text and nutrition score
                 resultDiv.innerHTML = `
                     <h2>Detected Text:</h2>
                     <p>${data.detected_text}</p>
