@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Food Label Analyzer v0.2</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>Food Label Analyzer v0.21</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -75,7 +77,7 @@
     </style>
 </head>
 <body>
-    <h1>Food Label Analyzer v0.2</h1>
+    <h1>Food Label Analyzer v0.21</h1>
     <video id="video" autoplay></video>
     <button id="captureButton" aria-label="Capture Image">Capture Image</button>
     <canvas id="canvas"></canvas>
@@ -92,24 +94,38 @@
         const capturedImage = document.getElementById('capturedImage');
         const captureButton = document.getElementById('captureButton');
 
-        // Improved Camera Access for Mobile Devices
+        // Function to start the camera with constraints for iOS compatibility
         async function startCamera() {
+            const constraints = {
+                video: {
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                    facingMode: 'environment' // Removed `ideal` to make it more robust
+                }
+            };
+
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: {
-                        facingMode: 'environment',
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
-                    }
-                });
+                // Prompt the user to access the camera
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = stream;
-            } catch (err) {
-                console.error("Error accessing the camera: ", err);
-                alert("Could not access the camera. Please check your permissions.");
+
+                // Fix for iOS: Reload page if stream ends (e.g., user denies permission)
+                stream.getTracks().forEach(track => {
+                    track.addEventListener('ended', () => {
+                        console.log("Stream ended. Re-initializing camera...");
+                        startCamera();
+                    });
+                });
+
+                // Log success message
+                console.log("Camera stream started successfully.");
+            } catch (error) {
+                console.error("Error accessing the camera: ", error);
+                alert("Could not access the camera. Please check your permissions and ensure you have allowed camera access.");
             }
         }
 
-        // Start the camera on load
+        // Start the camera when the page loads
         document.addEventListener('DOMContentLoaded', () => {
             startCamera();
         });
