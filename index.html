@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="theme-color" content="#ffffff">
     <meta name="description" content="Food Label Analyzer">
-    <title>Food Label Analyzer 0.23</title>
+    <title>Food Label Analyzer 0.24</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -65,6 +65,8 @@
             border: 1px solid #ccc;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            white-space: normal; /* Allow text to wrap */
+            overflow: visible; /* Make sure all text is shown */
         }
 
         @media (max-width: 768px) {
@@ -80,7 +82,7 @@
     </style>
 </head>
 <body>
-    <h1>Food Label Analyzer v0.23</h1>
+    <h1>Food Label Analyzer v0.24</h1>
     <video id="video" autoplay playsinline></video> <!-- Added `playsinline` to ensure iOS plays inline -->
     <button id="captureButton" aria-label="Capture Image">Capture Image</button>
     <canvas id="canvas" style="display:none;"></canvas> <!-- Hide canvas initially -->
@@ -182,6 +184,8 @@
                     <p>${data.detected_text}</p>
                     <h2>Nutritional Score:</h2>
                     <p>${data.nutrition_score !== undefined ? data.nutrition_score : 'N/A'}</p>
+                    <h2>Nutrition Score for Type 1 Diabetes:</h2>
+                    <p>${data.diabetes_score !== undefined ? data.diabetes_score : 'N/A'}</p>
                 `;
             } catch (error) {
                 console.error('Error:', error);
